@@ -1,0 +1,28 @@
+# Local build staging and previous executables
+build-preview/
+dist/*.previous.exe
+
+# Per-user and temporary files
+.vs/
+*.user
+*.suo
+*.tmp
+session.xml
+tests/test-session.xml
+tests/embedded-icon.png
+
+# Credentials, private configuration, and diagnostics
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.p12
+*.log
+credentials*.json
+secrets*.json
+audit-private/
+
+# Packaged documents duplicate root copies
+dist/*.md
+dist/THIRD-PARTY-NOTICES.txt

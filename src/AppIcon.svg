@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="tile" x2="0.8" y2="1"><stop stop-color="#202A36"/><stop offset="1" stop-color="#090E15"/></linearGradient>
+    <linearGradient id="metal" x2="1" y2="0.5"><stop stop-color="#FAFDFF"/><stop offset="1" stop-color="#AAB9C8"/></linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="url(#tile)" stroke="#435263" stroke-width="2"/>
+  <path d="M49 157 A85 85 0 0 1 158 47" fill="none" stroke="#475D70" stroke-width="5" stroke-linecap="round"/>
+  <path d="M43 113 H56 M75 52 L82 63 M120 35 V48" stroke="#708699" stroke-width="5" stroke-linecap="round"/>
+  <path d="M119 132 L174 188 M136 132 L158 189" fill="none" stroke="#D0DCE5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M57 184 Q103 162 149 184 L158 194 Q104 212 48 194 Z" fill="#8B9FAF"/>
+  <path d="M57 184 Q103 172 149 184" fill="none" stroke="#D5E2EA" stroke-width="5" stroke-linecap="round"/>
+  <path d="M96 164 L128 75 Q130 68 137 70 L157 77 Q163 79 160 87 L129 175 Q115 184 96 164 Z" fill="url(#metal)"/>
+  <path d="M128 77 L157 87" stroke="#607487" stroke-width="6"/>
+  <path d="M107 138 L139 150" stroke="#6E869A" stroke-width="10"/>
+  <path d="M150 190 H180" stroke="#94A8B9" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="196" cy="62" r="16" fill="none" stroke="#9BE5F1" stroke-width="5"/>
+  <path d="M196 37 V48 M196 76 V87 M171 62 H182 M210 62 H221" stroke="#9BE5F1" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="196" cy="62" r="4" fill="#F0FDFF"/>
+</svg>

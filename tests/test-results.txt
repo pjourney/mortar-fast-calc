@@ -1,0 +1,127 @@
+PASS: parse X: x98.43, y110.38
+PASS: parse Y: x98.43, y110.38
+PASS: parse X: 98.43,110.38
+PASS: parse Y: 98.43,110.38
+PASS: parse X: 98.43 110.38
+PASS: parse Y: 98.43 110.38
+PASS: parse X: (98.43, 110.38)
+PASS: parse Y: (98.43, 110.38)
+PASS: parse X: 98.43 / 110.38
+PASS: parse Y: 98.43 / 110.38
+PASS: parse X: X:98.43; Y:110.38
+PASS: parse Y: X:98.43; Y:110.38
+PASS: parse X: y110.38 x98.43
+PASS: parse Y: y110.38 x98.43
+PASS: parse X: x98,43 y110,38
+PASS: parse Y: x98,43 y110,38
+PASS: parse X: [98.43;110.38]
+PASS: parse Y: [98.43;110.38]
+PASS: reject:
+PASS: reject: hello
+PASS: reject: 98.43
+PASS: reject: 1,2,3
+PASS: reject: x1 y2 x3
+PASS: reject: xNaN y2
+PASS: reject: NaN, 2
+PASS: reject: Infinity, 2
+PASS: reject: 1e3, 2
+PASS: reject: -1,2
+PASS: reject: 165,2
+PASS: reject: 1,999999999999999999999999
+PASS: reject: x1 y2 z3
+PASS: reject: Player 22: x1 y2
+PASS: reject: 1,2 trailing
+PASS: reject: 98,43 110,38
+PASS: coordinate envelope boundary
+PASS: compass 0
+PASS: compass 45
+PASS: compass 90
+PASS: compass 135
+PASS: compass 180
+PASS: compass 225
+PASS: compass 270
+PASS: compass 315
+PASS: 3-4-5 triangle and 100m scale
+PASS: published coordinate example
+PASS: example is west southwest, not west northwest
+PASS: min table endpoint
+PASS: max table endpoint
+PASS: exact table row
+PASS: interpolation
+PASS: below min does not extrapolate
+PASS: above max does not extrapolate
+PASS: NaN not a solution
+PASS: override range
+PASS: override retains grid distance
+PASS: override retains bearing
+PASS: override marked active
+PASS: coincident positions have no heading
+PASS: reject invalid distance 0
+PASS: reject invalid distance -1
+PASS: reject invalid distance 25001
+PASS: reject invalid distance NaN
+PASS: reject invalid distance ∞
+PASS: locale-independent parsing
+PASS: locale-independent copy
+PASS: empty UI has no solution
+PASS: empty UI disables copy
+PASS: empty scene has no target or elevation
+PASS: example renders valid result
+PASS: example RNG renders 413
+PASS: example bearing renders 250.9
+PASS: 3D heading matches result
+PASS: native scene geometry created
+PASS: Ctrl+4 focuses 3D view
+PASS: routed arrow key orbits model
+PASS: camera orbit does not alter solution
+PASS: Space toggles overhead camera
+PASS: zoom-in bounded
+PASS: zoom-out bounded
+PASS: Home restores default camera
+PASS: 3D east axis 0
+PASS: 3D north axis 0
+PASS: 3D east axis 45
+PASS: 3D north axis 45
+PASS: 3D east axis 90
+PASS: 3D north axis 90
+PASS: 3D east axis 135
+PASS: 3D north axis 135
+PASS: 3D east axis 180
+PASS: 3D north axis 180
+PASS: 3D east axis 225
+PASS: 3D north axis 225
+PASS: 3D east axis 270
+PASS: 3D north axis 270
+PASS: 3D east axis 315
+PASS: 3D north axis 315
+PASS: longer range makes illustrative tube less steep
+PASS: Ctrl+1 focuses origin
+PASS: focus selects coordinate pair
+PASS: Tab order origin to target
+PASS: Tab order target to distance
+PASS: Ctrl+2 focuses target
+PASS: Ctrl+3 focuses distance
+PASS: Enter saves current setup
+PASS: identical saves deduplicated
+PASS: typing override updates UI
+PASS: override visibly identified
+PASS: new target clears override and retains mortar
+PASS: keyboard history restores override
+PASS: out-of-range UI suppresses MIL
+PASS: unreachable target retains bearing without elevation claim
+PASS: invalid edits clear stale solution and copy
+PASS: invalid input clears 3D target too
+PASS: same point invalidates UI
+PASS: Ctrl+T enables keep on top
+PASS: Ctrl+T disables keep on top
+PASS: session persistence roundtrip
+PASS: history capped at 20
+PASS: delete saved target
+PASS: corrupt session recovers without crashing
+PASS: DTD entities rejected
+PASS: external entities rejected
+PASS: oversized session recovers
+PASS: oversized coordinate rejected before UI assignment
+PASS: unexpected document root rejected
+PASS: malformed saved history omitted
+SUCCESS: 126 assertions passed.
