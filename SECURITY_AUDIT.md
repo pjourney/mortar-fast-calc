@@ -13,7 +13,7 @@ Reviewed September 20, 2026. Scope: all tracked files and reachable Git objects;
 
 ## Verification
 
-- 126 compiled application assertions pass, including six security regressions for DTDs, external entities, excessive document/field sizes, unexpected document roots, and malformed history.
+- 149 compiled application assertions pass, including six security regressions for DTDs, external entities, excessive document/field sizes, unexpected document roots, and malformed history.
 - Scan UTF-8 and UTF-16 content, Git metadata, decompressed archive entries, common credential patterns, machine/user identifiers available in the local environment, and PNG metadata chunks. The scanner reports categories and locations without printing the matched values.
 - Rendered screenshots use the documented synthetic coordinate example and synthetic test setups. They do not capture the user's desktop, account, or game session.
 - The application has no network client, credential storage, dynamic code compilation, process launching, or game-memory integration. Clipboard access is write-only and explicit. XAML is loaded only from embedded, build-time resources.

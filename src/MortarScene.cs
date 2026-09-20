@@ -42,7 +42,7 @@ namespace WardogsFastCalc {
    host.LostMouseCapture+=delegate{dragging=false;};
    host.MouseMove+=delegate(object s,MouseEventArgs e){if(!dragging)return;Point p=e.GetPosition(host);Orbit((p.X-lastMouse.X)*.5,(p.Y-lastMouse.Y)*.3);lastMouse=p;};
    host.MouseWheel+=delegate(object s,MouseWheelEventArgs e){Zoom(e.Delta>0?-.5:.5);e.Handled=true;};
-   host.KeyDown+=delegate(object s,KeyEventArgs e){if(Keyboard.Modifiers==ModifierKeys.None&&HandleKey(e.Key))e.Handled=true;};
+   host.KeyDown+=delegate(object s,KeyEventArgs e){if(HandleKey(e.Key,Keyboard.Modifiers))e.Handled=true;};
    viewport.SizeChanged+=delegate{UpdateCamera();};
    Update(null);UpdateCamera();
   }
@@ -111,7 +111,11 @@ namespace WardogsFastCalc {
   public void ToggleTop(){IsTopView=!IsTopView;UpdateCamera();}
   public void Orbit(double horizontal,double vertical){IsTopView=false;orbit=(orbit+horizontal+360)%360;pitch=Math.Max(12,Math.Min(75,pitch+vertical));UpdateCamera();}
   public void Zoom(double delta){zoom=Math.Max(7,Math.Min(14,zoom+delta));UpdateCamera();}
-  public bool HandleKey(Key key){
+  public bool HandleKey(Key key){return HandleKey(key,ModifierKeys.None);}
+  public bool HandleKey(Key key,ModifierKeys modifiers){
+   // On the main keyboard, '+' is Shift+OemPlus; retain unmodified
+   // equals and numpad support while leaving other shortcuts alone.
+   if(modifiers!=ModifierKeys.None&&!(modifiers==ModifierKeys.Shift&&key==Key.OemPlus))return false;
    switch(key){case Key.Left:Orbit(-10,0);break;case Key.Right:Orbit(10,0);break;case Key.Up:Orbit(0,5);break;case Key.Down:Orbit(0,-5);break;
     case Key.Home:ResetCamera();break;case Key.Space:ToggleTop();break;case Key.Add:case Key.OemPlus:Zoom(-.5);break;case Key.Subtract:case Key.OemMinus:Zoom(.5);break;default:return false;}return true;
   }

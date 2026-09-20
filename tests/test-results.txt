@@ -46,6 +46,16 @@ PASS: published coordinate example
 PASS: example is west southwest, not west northwest
 PASS: min table endpoint
 PASS: max table endpoint
+PASS: coordinate-derived range endpoint 132 direction -1
+PASS: coordinate-derived endpoint MIL 132 direction -1
+PASS: coordinate-derived range endpoint 132 direction 1
+PASS: coordinate-derived endpoint MIL 132 direction 1
+PASS: coordinate-derived range endpoint 684 direction -1
+PASS: coordinate-derived endpoint MIL 684 direction -1
+PASS: coordinate-derived range endpoint 684 direction 1
+PASS: coordinate-derived endpoint MIL 684 direction 1
+PASS: coordinate distance genuinely below minimum stays out of range
+PASS: coordinate distance genuinely above maximum stays out of range
 PASS: exact table row
 PASS: interpolation
 PASS: below min does not extrapolate
@@ -78,6 +88,15 @@ PASS: Space toggles overhead camera
 PASS: zoom-in bounded
 PASS: zoom-out bounded
 PASS: Home restores default camera
+PASS: Shift+plus key is handled by the 3D view
+PASS: main keyboard plus zooms in
+PASS: numpad minus is handled
+PASS: numpad minus zooms out
+PASS: numpad plus is handled
+PASS: main keyboard minus is handled
+PASS: main keyboard minus zooms out
+PASS: modified application shortcuts do not zoom the camera
+PASS: unhandled shortcut leaves camera unchanged
 PASS: 3D east axis 0
 PASS: 3D north axis 0
 PASS: 3D east axis 45
@@ -107,6 +126,8 @@ PASS: typing override updates UI
 PASS: override visibly identified
 PASS: new target clears override and retains mortar
 PASS: keyboard history restores override
+PASS: deleting a focused saved row keeps keyboard navigation in history
+PASS: successive Delete keys remove remaining saved targets
 PASS: out-of-range UI suppresses MIL
 PASS: unreachable target retains bearing without elevation claim
 PASS: invalid edits clear stale solution and copy
@@ -115,6 +136,8 @@ PASS: same point invalidates UI
 PASS: Ctrl+T enables keep on top
 PASS: Ctrl+T disables keep on top
 PASS: session persistence roundtrip
+PASS: saved override with surrounding spaces survives restart
+PASS: whitespace-only saved override survives restart
 PASS: history capped at 20
 PASS: delete saved target
 PASS: corrupt session recovers without crashing
@@ -124,4 +147,4 @@ PASS: oversized session recovers
 PASS: oversized coordinate rejected before UI assignment
 PASS: unexpected document root rejected
 PASS: malformed saved history omitted
-SUCCESS: 126 assertions passed.
+SUCCESS: 149 assertions passed.

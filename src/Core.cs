@@ -70,6 +70,10 @@ namespace WardogsFastCalc {
         public static Solution Solve(Coordinate origin, Coordinate target, double? distanceOverride) {
             double dx = target.X-origin.X, dy = target.Y-origin.Y;
             double distance = Math.Sqrt(dx*dx+dy*dy)*100;
+            // Decimal grid coordinates can land a few trillionths of a meter
+            // outside an exact table endpoint after binary floating-point arithmetic.
+            if (Math.Abs(distance-132)<1e-9) distance=132;
+            else if (Math.Abs(distance-684)<1e-9) distance=684;
             if (distance < 0.000001) throw new ArgumentException("Your position and target are the same. Enter a different target.");
             if (distanceOverride.HasValue && (Double.IsNaN(distanceOverride.Value) || Double.IsInfinity(distanceOverride.Value) || distanceOverride <= 0 || distanceOverride > 25000))
                 throw new ArgumentException("Distance must be greater than 0 and at most 25000 meters.");

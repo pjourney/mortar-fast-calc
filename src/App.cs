@@ -105,7 +105,12 @@ namespace WardogsFastCalc {
   }
   void RefreshHistory(){History.ItemsSource=null;History.ItemsSource=Saved;Set("HistoryHint",Saved.Count==0?"No saved targets yet. Enter saves your current setup here.":Saved.Count+" saved · most recent first · restores the complete setup");}
   public void Recall(){var t=History.SelectedItem as SavedTarget;if(t==null)return;SetInputs(t.Origin,t.Target,t.Distance);Focus(Target);Set("HistoryHint","Restored mortar, target, and distance from the selected setup.");}
-  public void RemoveSelected(){var t=History.SelectedItem as SavedTarget;if(t==null)return;Saved.Remove(t);RefreshHistory();Persist();}
+  public void RemoveSelected(){
+   var t=History.SelectedItem as SavedTarget;if(t==null)return;
+   int index=History.SelectedIndex;bool hadFocus=History.IsKeyboardFocusWithin;
+   Saved.Remove(t);RefreshHistory();History.SelectedIndex=Math.Min(index,Saved.Count-1);
+   if(hadFocus)History.Focus();Persist();
+  }
   void CopyCallout(){if(Current==null)return;try{Clipboard.SetText(Current.Callout);Set("Footer","Copied callout to clipboard.");}catch(System.Runtime.InteropServices.ExternalException){Set("Footer","Clipboard is busy. Try Copy again.");}}
   public bool HandleShortcut(Key key, ModifierKeys modifiers) {
    if(modifiers==(ModifierKeys.Control|ModifierKeys.Shift)&&key==Key.C){CopyCallout();return true;}
@@ -153,7 +158,7 @@ namespace WardogsFastCalc {
      Coordinate a,b;double range;
      if(saved.Origin.Length>512||saved.Target.Length>512||saved.Distance.Length>12||saved.Summary.Length>1200)continue;
      if(!Calculator.TryCoordinate(saved.Origin,out a)||!Calculator.TryCoordinate(saved.Target,out b))continue;
-     if(saved.Distance.Length>0&&(!Calculator.TryNumber(saved.Distance,out range)||range<=0||range>25000))continue;
+     if(!String.IsNullOrWhiteSpace(saved.Distance)&&(!Calculator.TryNumber(saved.Distance.Trim(),out range)||range<=0||range>25000))continue;
      Saved.Add(saved);
     }
     RefreshHistory();

@@ -1,9 +1,10 @@
 # Validation
 
-Windows host, September 19, 2026.
+Windows host, September 20, 2026.
 
 - Built with the installed .NET Framework compiler; no external dependencies downloaded.
-- 126 automated assertions pass in the compiled executable. Full output: `test-results.txt`.
+- 149 automated assertions pass in the compiled executable. Full output: `test-results.txt`.
+- Bug-pass regressions: exact coordinate-derived 132 m and 684 m endpoints remain in range despite floating-point error; genuinely out-of-range distances remain rejected. Saved distance values with surrounding spaces or only whitespace survive a session restart. Shift+plus zooms the scene, and deleting a selected history row retains focus and selection for repeated keyboard deletion. Each bug was reproduced by a failing check before its fix.
 - Calculation coverage: coordinate formats, decimal conventions, malformed/ambiguous input, all eight compass directions, published example, range endpoints, interpolation, manual overrides, coincident points, nonfinite values, and culture-independent output.
 - WPF coverage: live updates, invalidation of stale values, tab order, select-all focus, keyboard commands, saved setup recall, duplicates, range warnings, session persistence, history limits, and corrupt-file recovery.
 - 3D coverage: heading correspondence on all eight compass directions, target invalidation, out-of-range state, relative tilt, routed arrow-key camera movement, Ctrl+4 focus, overhead toggle, camera reset, bounded zoom, and independence from calculated aiming values.

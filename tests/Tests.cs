@@ -33,6 +33,13 @@ namespace WardogsFastCalc {
     Near(sample.Distance,Math.Sqrt(3.9*3.9+1.35*1.35)*100,"published coordinate example");
     Check(sample.Bearing>250&&sample.Bearing<252&&sample.Direction=="WSW","example is west southwest, not west northwest");
     Near(Calculator.EstimateMil(132).Value,850,"min table endpoint");Near(Calculator.EstimateMil(684).Value,150,"max table endpoint");
+    foreach(double endpoint in new[]{132d,684d})foreach(int sign in new[]{-1,1}) {
+     var edge=Calculator.Solve(center,new Coordinate(100+sign*endpoint/100,100),null);
+     Check(edge.InRange&&edge.Mil.HasValue,"coordinate-derived range endpoint "+endpoint+" direction "+sign);
+     Near(edge.Mil.Value,endpoint==132?850:150,"coordinate-derived endpoint MIL "+endpoint+" direction "+sign);
+    }
+    Check(!Calculator.Solve(center,new Coordinate(101.319999,100),null).InRange,"coordinate distance genuinely below minimum stays out of range");
+    Check(!Calculator.Solve(center,new Coordinate(106.840001,100),null).InRange,"coordinate distance genuinely above maximum stays out of range");
     Near(Calculator.EstimateMil(300).Value,690,"exact table row");Near(Calculator.EstimateMil(305).Value,685,"interpolation");
     Check(!Calculator.EstimateMil(131.99).HasValue,"below min does not extrapolate");Check(!Calculator.EstimateMil(684.01).HasValue,"above max does not extrapolate");
     Check(!Calculator.EstimateMil(Double.NaN).HasValue,"NaN not a solution");
@@ -60,6 +67,14 @@ namespace WardogsFastCalc {
        for(int i=0;i<40;i++)c1.Scene.Zoom(-1);Near(c1.Scene.CameraDistance,7,"zoom-in bounded");
        for(int i=0;i<40;i++)c1.Scene.Zoom(1);Near(c1.Scene.CameraDistance,14,"zoom-out bounded");
        c1.Scene.HandleKey(Key.Home);Check(!c1.Scene.IsTopView&&c1.Scene.CameraOrbit==32,"Home restores default camera");
+       double beforeZoom=c1.Scene.CameraDistance;
+       Check(c1.Scene.HandleKey(Key.OemPlus,ModifierKeys.Shift),"Shift+plus key is handled by the 3D view");
+       Near(c1.Scene.CameraDistance,beforeZoom-.5,"main keyboard plus zooms in");
+       Check(c1.Scene.HandleKey(Key.Subtract,ModifierKeys.None),"numpad minus is handled");Near(c1.Scene.CameraDistance,beforeZoom,"numpad minus zooms out");
+       Check(c1.Scene.HandleKey(Key.Add,ModifierKeys.None),"numpad plus is handled");
+       Check(c1.Scene.HandleKey(Key.OemMinus,ModifierKeys.None),"main keyboard minus is handled");Near(c1.Scene.CameraDistance,beforeZoom,"main keyboard minus zooms out");
+       Check(!c1.Scene.HandleKey(Key.OemPlus,ModifierKeys.Control),"modified application shortcuts do not zoom the camera");
+       Near(c1.Scene.CameraDistance,beforeZoom,"unhandled shortcut leaves camera unchanged");
        foreach(var row in directions){c1.SetInputs("100,100",row[0].ToString(CultureInfo.InvariantCulture)+","+row[1].ToString(CultureInfo.InvariantCulture),"300");Near(c1.Scene.Forward.X,Math.Sin(row[2]*Math.PI/180),"3D east axis "+row[2]);Near(c1.Scene.Forward.Z,-Math.Cos(row[2]*Math.PI/180),"3D north axis "+row[2]);}
        c1.Distance.Text="132";double shortTilt=c1.Scene.ElevationVisual.Value;c1.Distance.Text="684";Check(c1.Scene.ElevationVisual.Value<shortTilt,"longer range makes illustrative tube less steep");
        c1.LoadExample();
@@ -71,6 +86,11 @@ namespace WardogsFastCalc {
        c1.Distance.Text="500";Near(c1.Current.Range,500,"typing override updates UI");Check(c1.Find<TextBlock>("InputStatus").Text.Contains("OVERRIDE"),"override visibly identified");c1.SaveTarget();
        c1.HandleShortcut(Key.N,ModifierKeys.Control);Check(c1.Current==null&&c1.Target.Text==""&&c1.Distance.Text==""&&c1.Origin.Text!="","new target clears override and retains mortar");
        c1.HandleShortcut(Key.H,ModifierKeys.Control);c1.HandleShortcut(Key.Enter,ModifierKeys.None);Check(c1.Distance.Text=="500"&&c1.Current!=null,"keyboard history restores override");
+       c1.HandleShortcut(Key.H,ModifierKeys.Control);c1.History.SelectedIndex=0;c1.History.UpdateLayout();
+       ((ListBoxItem)c1.History.ItemContainerGenerator.ContainerFromIndex(0)).Focus();
+       c1.HandleShortcut(Key.Delete,ModifierKeys.None);
+       Check(c1.History.IsKeyboardFocusWithin&&c1.History.SelectedIndex==0,"deleting a focused saved row keeps keyboard navigation in history");
+       c1.HandleShortcut(Key.Delete,ModifierKeys.None);Check(c1.Saved.Count==0,"successive Delete keys remove remaining saved targets");
        c1.Distance.Text="700";Check(c1.Current!=null&&!c1.Current.InRange&&c1.Find<TextBlock>("Mil").Text=="— MIL","out-of-range UI suppresses MIL");
        Check(c1.Scene.HasTarget&&!c1.Scene.ElevationVisual.HasValue,"unreachable target retains bearing without elevation claim");
        c1.RenderTo(Path.Combine(Path.GetDirectoryName(report),"app-out-of-range.png"));
@@ -82,6 +102,10 @@ namespace WardogsFastCalc {
        string session=Path.Combine(sessionDirectory,"session.xml");
        var p=new Controller(session);p.LoadExample();p.Distance.Text="450";p.SaveTarget();p.Persist();var restored=new Controller(session);
        Check(restored.Current!=null&&restored.Current.Range==450&&restored.Saved.Count==1,"session persistence roundtrip");
+       p.Distance.Text=" 450 ";p.SaveTarget();p.Persist();var spaced=new Controller(session);
+       Check(spaced.Saved.Count==p.Saved.Count&&spaced.Current!=null&&spaced.Current.Range==450,"saved override with surrounding spaces survives restart");
+       p.Distance.Text="   ";p.SaveTarget();p.Persist();var blankOverride=new Controller(session);
+       Check(blankOverride.Saved.Count==p.Saved.Count&&blankOverride.Current!=null&&!blankOverride.Current.Overridden,"whitespace-only saved override survives restart");
        for(int i=0;i<25;i++){p.SetInputs("100,100","101,"+(100+i).ToString(CultureInfo.InvariantCulture),"");p.SaveTarget();}Check(p.Saved.Count==20,"history capped at 20");
        p.History.SelectedIndex=0;p.RemoveSelected();Check(p.Saved.Count==19,"delete saved target");
        File.WriteAllText(session,"broken xml");var recovered=new Controller(session);Check(recovered.Current==null,"corrupt session recovers without crashing");
