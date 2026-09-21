@@ -1,4 +1,4 @@
-﻿# WARDOGS Mortar Fast Calc
+# WARDOGS Mortar Fast Calc
 
 ![Application icon](src/AppIcon.png)
 
@@ -25,11 +25,17 @@ The app automatically recalculates while typing. Invalid input clears the old re
 | Ctrl+1 | Select your mortar coordinates |
 | Ctrl+2 | Select target coordinates |
 | Ctrl+3 | Select distance override |
-| Enter while editing | Save current setup |
+| Ctrl+5 | Select the optional target name |
+| Enter while editing inputs | Save current setup |
 | Ctrl+N | New target; retain mortar |
 | Ctrl+Shift+C | Copy the result as a text callout |
 | Ctrl+H | Focus saved targets |
-| Up / Down, then Enter | Choose and recall a saved setup |
+| Up / Down, then Enter | Use selected target from your current mortar position |
+| Shift+Enter in saved targets | Restore saved mortar, target, and override |
+| Ctrl+F | Search saved names or coordinates |
+| Down / Enter in search | Move to matching saved targets |
+| Esc in search | Clear the filter |
+| F2 / F in saved targets | Rename / toggle favorite |
 | Delete in saved targets | Remove the selected setup |
 | Ctrl+T | Toggle always on top |
 | F1 | Open the in-app guide |
@@ -53,13 +59,23 @@ The current Bakurani, Ozeti, and Zestafona community configurations share a scal
 
 L81 only: the researched community table covers 132–684 meters. Estimates use linear interpolation of that game's table. Outside the interval the app shows a range warning and suppresses MIL. It does not compute terrain-height, wind, or obstruction corrections. Community data may change with patches. The live game sight takes precedence; the application has not been validated by firing rounds in a live match.
 
+## Saved targets and resizing
+
+Add an optional **Target name** before saving. Saved rows show the name, target coordinates, and the bearing/range of the saved setup; hover a row to see the full setup. **Rename** (F2) changes a saved name. **Favorite** (F) puts a target at the top and protects it from automatic eviction when the 20-target limit is reached. If all 20 are favorites, remove or unstar one before adding another.
+
+**Use target** (Enter or double-click) keeps your current mortar coordinates, clears the previous distance override, and recalculates. **Restore setup** (Shift+Enter) also restores the saved mortar coordinates and override. Search matches names and coordinates without regard to case. Existing unnamed saved targets remain compatible.
+
+The bearing, range, and MIL strip stays visible while the controls scroll. Below 1000 logical pixels in window width, the panels stack; wider windows put inputs beside the scene and saved list. The app supports windows down to 560 × 500 logical pixels. The scene grows with available space, and keyboard focus scrolls off-screen controls into view.
+
+Window size, position, and maximized state are restored on launch. Saved bounds are fitted to an available monitor's work area, including when the previous monitor is disconnected. Desktop scaling uses the app's existing Windows system-DPI-aware behavior.
+
 ## Saved data
 
-The last inputs, keep-on-top preference, and up to 20 saved setups are stored at:
+The last inputs, target name, keep-on-top preference, window placement, and up to 20 named/favorite setups are stored at:
 
 `%LOCALAPPDATA%\WardogsFastCalc\session.xml`
 
-Saving a setup or closing the app writes state. Each saved setup includes the mortar coordinates, target coordinates, and optional distance override. The app does not access game memory, inject inputs, monitor the clipboard, or use the network. Copy reads no clipboard contents and runs only when requested.
+Saving a setup or closing the app writes state. Each saved setup includes the mortar coordinates, target coordinates, and optional distance override. Write failures are reported in the footer; targets remain available in memory for the current session. The app does not access game memory, inject inputs, monitor the clipboard, or use the network. Copy reads no clipboard contents and runs only when requested.
 
 ## Build and tests
 

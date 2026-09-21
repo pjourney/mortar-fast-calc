@@ -15,6 +15,7 @@ namespace WardogsFastCalc {
   static void Check(bool ok,string name){if(!ok)throw new Exception("FAIL: "+name);count++;log.Add("PASS: "+name);}
   static void Near(double a,double b,string name){Check(Math.Abs(a-b)<0.00001,name);}
   static Coordinate Parse(string s){Coordinate c;if(!Calculator.TryCoordinate(s,out c))throw new Exception("Parse failed: "+s);return c;}
+  static void Resize(Controller c,double width,double height){c.Window.Width=width;c.Window.Height=height;c.Window.UpdateLayout();c.UpdateLayout();c.Window.UpdateLayout();}
   public static int Run(string report){
    int result=0;report=Path.GetFullPath(report);Directory.CreateDirectory(Path.GetDirectoryName(report));
    string sessionDirectory=Path.Combine(Path.GetTempPath(),"WardogsFastCalc-Tests-"+Guid.NewGuid().ToString("N"));
@@ -47,7 +48,12 @@ namespace WardogsFastCalc {
     bool threw=false;try{Calculator.Solve(center,center,500);}catch(ArgumentException){threw=true;}Check(threw,"coincident positions have no heading");
     foreach(double value in new[]{0d,-1d,25001d,Double.NaN,Double.PositiveInfinity}){threw=false;try{Calculator.Solve(center,new Coordinate(101,101),value);}catch(ArgumentException){threw=true;}Check(threw,"reject invalid distance "+value);}
     var culture=Thread.CurrentThread.CurrentCulture;Thread.CurrentThread.CurrentCulture=new CultureInfo("de-DE");Near(Parse("98.43 110.38").X,98.43,"locale-independent parsing");Check(sample.Callout.Contains("250.9"),"locale-independent copy");Thread.CurrentThread.CurrentCulture=culture;
-    var app=new Application();var c1=new Controller(null);
+    var screens=new[]{new Rect(0,0,1920,1040),new Rect(-1280,0,1280,984)};
+    var fit=DesktopLayout.Fit(new Rect(-1100,60,900,700),screens);Near(fit.Left,-1100,"window remains on an available secondary monitor");
+    fit=DesktopLayout.Fit(new Rect(-1100,60,900,700),new[]{screens[0]});Check(screens[0].Contains(fit),"window from a disconnected monitor moves fully onto an available screen");
+    fit=DesktopLayout.Fit(new Rect(20,20,3000,2000),new[]{screens[0]});Check(screens[0].Contains(fit)&&fit.Size==screens[0].Size,"oversized window fits the desktop work area");
+    var smallWorkArea=new Rect(0,0,853,480);fit=DesktopLayout.Fit(new Rect(0,0,1200,880),new[]{smallWorkArea});Check(smallWorkArea.Contains(fit),"small high-DPI work areas override the normal minimum height");
+    var app=new Application();var c1=new Controller(null,()=>ModifierKeys.None);
     c1.Window.Loaded+=delegate{
      c1.Window.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle,new Action(delegate{
       try{
@@ -85,12 +91,35 @@ namespace WardogsFastCalc {
        c1.HandleShortcut(Key.Enter,ModifierKeys.None);Check(c1.Saved.Count==1,"Enter saves current setup");c1.SaveTarget();Check(c1.Saved.Count==1,"identical saves deduplicated");
        c1.Distance.Text="500";Near(c1.Current.Range,500,"typing override updates UI");Check(c1.Find<TextBlock>("InputStatus").Text.Contains("OVERRIDE"),"override visibly identified");c1.SaveTarget();
        c1.HandleShortcut(Key.N,ModifierKeys.Control);Check(c1.Current==null&&c1.Target.Text==""&&c1.Distance.Text==""&&c1.Origin.Text!="","new target clears override and retains mortar");
-       c1.HandleShortcut(Key.H,ModifierKeys.Control);c1.HandleShortcut(Key.Enter,ModifierKeys.None);Check(c1.Distance.Text=="500"&&c1.Current!=null,"keyboard history restores override");
+       c1.HandleShortcut(Key.H,ModifierKeys.Control);c1.HandleShortcut(Key.Enter,ModifierKeys.Shift);Check(c1.Distance.Text=="500"&&c1.Current!=null,"keyboard history restores override");
        c1.HandleShortcut(Key.H,ModifierKeys.Control);c1.History.SelectedIndex=0;c1.History.UpdateLayout();
        ((ListBoxItem)c1.History.ItemContainerGenerator.ContainerFromIndex(0)).Focus();
        c1.HandleShortcut(Key.Delete,ModifierKeys.None);
        Check(c1.History.IsKeyboardFocusWithin&&c1.History.SelectedIndex==0,"deleting a focused saved row keeps keyboard navigation in history");
        c1.HandleShortcut(Key.Delete,ModifierKeys.None);Check(c1.Saved.Count==0,"successive Delete keys remove remaining saved targets");
+       c1.TargetName.Text="North bridge";c1.SaveTarget();var bridge=c1.Saved[0];c1.ToggleFavorite();Check(bridge.Name=="North bridge"&&bridge.IsFavorite,"saved target has a name and favorite state");
+       c1.SetInputs("100,100","102,100","");c1.TargetName.Text="East depot";c1.SaveTarget();var depot=c1.Saved[0];Check(c1.History.Items[0]==bridge,"favorites appear before more recent targets");
+       c1.HandleShortcut(Key.F,ModifierKeys.Control);Check(c1.HistorySearch.IsKeyboardFocused,"Ctrl+F focuses target search");c1.HistorySearch.Text="DEPOT";Check(c1.History.Items.Count==1&&c1.History.Items[0]==depot,"name search ignores case");
+       c1.HandleShortcut(Key.Enter,ModifierKeys.None);Check(c1.History.IsKeyboardFocusWithin&&c1.Saved.Count==2,"Enter in search focuses results without saving another target");
+       c1.Origin.Text="100,102";c1.Distance.Text="450";c1.HandleShortcut(Key.Enter,ModifierKeys.None);
+       Check(c1.Origin.Text=="100,102"&&c1.Target.Text=="102,100"&&c1.Distance.Text==""&&c1.TargetName.Text=="East depot","Enter uses a saved target from the current mortar and clears the old override");
+       Near(c1.Current.Range,Math.Sqrt(8)*100,"using saved target recalculates range from current position");
+       c1.HistorySearch.Clear();c1.History.SelectedItem=depot;c1.RenameSelected("East gate");Check(depot.Name=="East gate"&&c1.Saved.Count==2,"rename changes the existing saved target");
+       c1.History.SelectedItem=bridge;c1.HandleShortcut(Key.H,ModifierKeys.Control);c1.HandleShortcut(Key.Enter,ModifierKeys.Shift);
+       Check(c1.Origin.Text==bridge.Origin&&c1.Distance.Text=="500"&&c1.TargetName.Text=="North bridge","Shift+Enter restores the complete named setup");
+       c1.RenameSelected("North crossing");Check(c1.TargetName.Text=="North crossing","renaming the loaded setup keeps its editor name synchronized");
+       c1.HandleShortcut(Key.H,ModifierKeys.Control);
+       c1.Window.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle,new Action(delegate{
+        var dialog=c1.Window.OwnedWindows[0];var editor=Keyboard.FocusedElement as TextBox;
+        if(editor!=null)editor.Text="North crossing renamed";dialog.DialogResult=true;
+       }));
+       c1.HandleShortcut(Key.F2,ModifierKeys.None);Check(bridge.Name=="North crossing renamed"&&c1.History.IsKeyboardFocusWithin,"F2 opens the rename dialog and returns focus to saved targets after confirmation");
+       c1.Window.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle,new Action(delegate{var dialog=c1.Window.OwnedWindows[0];var editor=Keyboard.FocusedElement as TextBox;if(editor!=null)editor.Text="Cancelled name";dialog.DialogResult=false;}));
+       c1.HandleShortcut(Key.F2,ModifierKeys.None);Check(bridge.Name=="North crossing renamed","canceling rename leaves the target unchanged");
+       c1.HistorySearch.Text="no match";Check(c1.History.Items.Count==0&&!c1.Find<Button>("UseTarget").IsEnabled,"empty search results disable saved-target actions");
+       c1.HandleShortcut(Key.F,ModifierKeys.Control);c1.HandleShortcut(Key.Escape,ModifierKeys.None);Check(c1.History.Items.Count==2,"Esc clears the search filter");
+       c1.HistorySearch.Text="102,100";Check(c1.History.Items.Count==1,"search also matches target coordinates");c1.HistorySearch.Clear();
+       c1.RenderTo(Path.Combine(Path.GetDirectoryName(report),"app-saved-targets.png"));
        c1.Distance.Text="700";Check(c1.Current!=null&&!c1.Current.InRange&&c1.Find<TextBlock>("Mil").Text=="— MIL","out-of-range UI suppresses MIL");
        Check(c1.Scene.HasTarget&&!c1.Scene.ElevationVisual.HasValue,"unreachable target retains bearing without elevation claim");
        c1.RenderTo(Path.Combine(Path.GetDirectoryName(report),"app-out-of-range.png"));
@@ -98,16 +127,36 @@ namespace WardogsFastCalc {
        Check(!c1.Scene.HasTarget&&!c1.Scene.ElevationVisual.HasValue,"invalid input clears 3D target too");
        c1.SetInputs("100,100","100,100","");Check(c1.Current==null,"same point invalidates UI");
        c1.HandleShortcut(Key.T,ModifierKeys.Control);Check(c1.Window.Topmost,"Ctrl+T enables keep on top");c1.HandleShortcut(Key.T,ModifierKeys.Control);Check(!c1.Window.Topmost,"Ctrl+T disables keep on top");
-       c1.LoadExample();c1.Window.Width=900;c1.Window.Height=620;c1.Window.UpdateLayout();c1.RenderTo(Path.Combine(Path.GetDirectoryName(report),"app-minimum-size.png"));
+       c1.LoadExample();
+       foreach(var size in new[]{new[]{560d,500d},new[]{760d,780d},new[]{999d,700d},new[]{1000d,700d},new[]{1200d,650d},new[]{1400d,1000d}}){
+        Resize(c1,size[0],size[1]);var scroll=c1.Find<ScrollViewer>("BodyScroll");scroll.ScrollToTop();c1.Window.UpdateLayout();
+        Check(c1.IsNarrowLayout==(c1.Window.ActualWidth<1000),"responsive layout breakpoint "+size[0]+"x"+size[1]);
+        Check(scroll.ExtentWidth<=scroll.ViewportWidth+.5,"no horizontal overflow "+size[0]+"x"+size[1]);
+        var results=c1.Find<Border>("ResultsCard");double before=results.TranslatePoint(new Point(0,0),c1.Window).Y;
+        scroll.ScrollToEnd();c1.Window.UpdateLayout();Near(results.TranslatePoint(new Point(0,0),c1.Window).Y,before,"aiming results stay fixed while controls scroll "+size[0]+"x"+size[1]);
+        Check(results.TranslatePoint(new Point(0,results.ActualHeight),c1.Window).Y<=scroll.TranslatePoint(new Point(0,0),c1.Window).Y,"controls cannot cover aiming values "+size[0]+"x"+size[1]);
+       }
+       Resize(c1,1200,650);c1.Find<ScrollViewer>("BodyScroll").ScrollToTop();c1.RenderTo(Path.Combine(Path.GetDirectoryName(report),"app-short-wide.png"));
+       Resize(c1,560,500);c1.Find<ScrollViewer>("BodyScroll").ScrollToTop();c1.RenderTo(Path.Combine(Path.GetDirectoryName(report),"app-minimum-size.png"));
+       c1.HandleShortcut(Key.H,ModifierKeys.Control);c1.RenderTo(Path.Combine(Path.GetDirectoryName(report),"app-narrow-history.png"));Check(c1.History.IsKeyboardFocusWithin,"saved targets stay keyboard accessible in the smallest layout");
        string session=Path.Combine(sessionDirectory,"session.xml");
-       var p=new Controller(session);p.LoadExample();p.Distance.Text="450";p.SaveTarget();p.Persist();var restored=new Controller(session);
+       var p=new Controller(session);p.LoadExample();p.Distance.Text="450";p.TargetName.Text="Test crossing";p.SaveTarget();p.ToggleFavorite();p.Persist();var restored=new Controller(session);
        Check(restored.Current!=null&&restored.Current.Range==450&&restored.Saved.Count==1,"session persistence roundtrip");
+       Check(restored.TargetName.Text=="Test crossing"&&restored.Saved[0].Name=="Test crossing"&&restored.Saved[0].IsFavorite,"names and favorites persist across restart");
        p.Distance.Text=" 450 ";p.SaveTarget();p.Persist();var spaced=new Controller(session);
        Check(spaced.Saved.Count==p.Saved.Count&&spaced.Current!=null&&spaced.Current.Range==450,"saved override with surrounding spaces survives restart");
        p.Distance.Text="   ";p.SaveTarget();p.Persist();var blankOverride=new Controller(session);
        Check(blankOverride.Saved.Count==p.Saved.Count&&blankOverride.Current!=null&&!blankOverride.Current.Overridden,"whitespace-only saved override survives restart");
        for(int i=0;i<25;i++){p.SetInputs("100,100","101,"+(100+i).ToString(CultureInfo.InvariantCulture),"");p.SaveTarget();}Check(p.Saved.Count==20,"history capped at 20");
+       Check(p.Saved.Exists(t=>t.IsFavorite&&t.Distance=="450"),"history eviction preserves favorites");
+       foreach(var t in p.Saved)t.IsFavorite=true;p.SetInputs("90,90","91,91","");p.SaveTarget();Check(p.Saved.Count==20&&p.Find<TextBlock>("HistoryHint").Text.Contains("All 20"),"full favorite list is protected from silent eviction");
        p.History.SelectedIndex=0;p.RemoveSelected();Check(p.Saved.Count==19,"delete saved target");
+       string legacy=Path.Combine(sessionDirectory,"legacy.xml");File.WriteAllText(legacy,"<WardogsFastCalc><History><Setup origin='100,100' target='102,100' distance=' 300 ' summary='legacy'/></History></WardogsFastCalc>");var legacyState=new Controller(legacy);Check(legacyState.Saved.Count==1&&legacyState.Saved[0].DisplayName=="Target 102,100","older unnamed saved targets migrate without loss");
+       string blocked=Path.Combine(sessionDirectory,"blocked");File.WriteAllText(blocked,"test");var blockedState=new Controller(Path.Combine(blocked,"session.xml"));blockedState.LoadExample();blockedState.SaveTarget();Check(blockedState.Saved.Count==1&&blockedState.Find<TextBlock>("HistoryHint").Text.Contains("Disk save failed"),"disk save failures are not reported as successful persistence");
+       string placement=Path.Combine(sessionDirectory,"placement.xml");var placed=new Controller(placement);placed.Window.Show();placed.Window.Left=SystemParameters.WorkArea.Left+20;placed.Window.Top=SystemParameters.WorkArea.Top+20;Resize(placed,820,640);placed.Persist();placed.Window.Close();
+       var reopened=new Controller(placement);reopened.Window.Show();reopened.Window.UpdateLayout();Near(reopened.Window.Width,820,"saved window width restored");Near(reopened.Window.Height,640,"saved window height restored");
+       reopened.Window.WindowState=WindowState.Maximized;reopened.Window.WindowState=WindowState.Minimized;reopened.Persist();reopened.Window.Close();var maximized=new Controller(placement);maximized.Window.Show();Check(maximized.Window.WindowState==WindowState.Maximized,"maximized preference survives a minimized close");maximized.Window.Close();
+       File.WriteAllText(placement,"<WardogsFastCalc><Window left='800000' top='800000' width='820' height='640'/></WardogsFastCalc>");var offscreen=new Controller(placement);offscreen.Window.Show();Check(offscreen.Window.Left<SystemParameters.VirtualScreenLeft+SystemParameters.VirtualScreenWidth&&offscreen.Window.Top<SystemParameters.VirtualScreenTop+SystemParameters.VirtualScreenHeight,"off-screen persisted window recovers on startup");offscreen.Window.Close();
        File.WriteAllText(session,"broken xml");var recovered=new Controller(session);Check(recovered.Current==null,"corrupt session recovers without crashing");
        File.WriteAllText(session,"<!DOCTYPE WardogsFastCalc [<!ENTITY test '100,100'>]><WardogsFastCalc><Origin>&test;</Origin></WardogsFastCalc>");var dtd=new Controller(session);Check(dtd.Origin.Text==""&&dtd.Find<TextBlock>("Footer").Text.Contains("could not be read"),"DTD entities rejected");
        string canary=Path.Combine(sessionDirectory,"canary.txt");File.WriteAllText(canary,"100,100");

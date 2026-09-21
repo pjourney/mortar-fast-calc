@@ -73,6 +73,10 @@ PASS: reject invalid distance NaN
 PASS: reject invalid distance ∞
 PASS: locale-independent parsing
 PASS: locale-independent copy
+PASS: window remains on an available secondary monitor
+PASS: window from a disconnected monitor moves fully onto an available screen
+PASS: oversized window fits the desktop work area
+PASS: small high-DPI work areas override the normal minimum height
 PASS: empty UI has no solution
 PASS: empty UI disables copy
 PASS: empty scene has no target or elevation
@@ -128,6 +132,21 @@ PASS: new target clears override and retains mortar
 PASS: keyboard history restores override
 PASS: deleting a focused saved row keeps keyboard navigation in history
 PASS: successive Delete keys remove remaining saved targets
+PASS: saved target has a name and favorite state
+PASS: favorites appear before more recent targets
+PASS: Ctrl+F focuses target search
+PASS: name search ignores case
+PASS: Enter in search focuses results without saving another target
+PASS: Enter uses a saved target from the current mortar and clears the old override
+PASS: using saved target recalculates range from current position
+PASS: rename changes the existing saved target
+PASS: Shift+Enter restores the complete named setup
+PASS: renaming the loaded setup keeps its editor name synchronized
+PASS: F2 opens the rename dialog and returns focus to saved targets after confirmation
+PASS: canceling rename leaves the target unchanged
+PASS: empty search results disable saved-target actions
+PASS: Esc clears the search filter
+PASS: search also matches target coordinates
 PASS: out-of-range UI suppresses MIL
 PASS: unreachable target retains bearing without elevation claim
 PASS: invalid edits clear stale solution and copy
@@ -135,11 +154,45 @@ PASS: invalid input clears 3D target too
 PASS: same point invalidates UI
 PASS: Ctrl+T enables keep on top
 PASS: Ctrl+T disables keep on top
+PASS: responsive layout breakpoint 560x500
+PASS: no horizontal overflow 560x500
+PASS: aiming results stay fixed while controls scroll 560x500
+PASS: controls cannot cover aiming values 560x500
+PASS: responsive layout breakpoint 760x780
+PASS: no horizontal overflow 760x780
+PASS: aiming results stay fixed while controls scroll 760x780
+PASS: controls cannot cover aiming values 760x780
+PASS: responsive layout breakpoint 999x700
+PASS: no horizontal overflow 999x700
+PASS: aiming results stay fixed while controls scroll 999x700
+PASS: controls cannot cover aiming values 999x700
+PASS: responsive layout breakpoint 1000x700
+PASS: no horizontal overflow 1000x700
+PASS: aiming results stay fixed while controls scroll 1000x700
+PASS: controls cannot cover aiming values 1000x700
+PASS: responsive layout breakpoint 1200x650
+PASS: no horizontal overflow 1200x650
+PASS: aiming results stay fixed while controls scroll 1200x650
+PASS: controls cannot cover aiming values 1200x650
+PASS: responsive layout breakpoint 1400x1000
+PASS: no horizontal overflow 1400x1000
+PASS: aiming results stay fixed while controls scroll 1400x1000
+PASS: controls cannot cover aiming values 1400x1000
+PASS: saved targets stay keyboard accessible in the smallest layout
 PASS: session persistence roundtrip
+PASS: names and favorites persist across restart
 PASS: saved override with surrounding spaces survives restart
 PASS: whitespace-only saved override survives restart
 PASS: history capped at 20
+PASS: history eviction preserves favorites
+PASS: full favorite list is protected from silent eviction
 PASS: delete saved target
+PASS: older unnamed saved targets migrate without loss
+PASS: disk save failures are not reported as successful persistence
+PASS: saved window width restored
+PASS: saved window height restored
+PASS: maximized preference survives a minimized close
+PASS: off-screen persisted window recovers on startup
 PASS: corrupt session recovers without crashing
 PASS: DTD entities rejected
 PASS: external entities rejected
@@ -147,4 +200,4 @@ PASS: oversized session recovers
 PASS: oversized coordinate rejected before UI assignment
 PASS: unexpected document root rejected
 PASS: malformed saved history omitted
-SUCCESS: 149 assertions passed.
+SUCCESS: 202 assertions passed.

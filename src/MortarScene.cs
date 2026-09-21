@@ -28,7 +28,8 @@ namespace WardogsFastCalc {
   public double CameraDistance { get { return zoom; } }
   public Vector3D Forward { get; private set; }
   public int GeometryCount { get { return world.Children.Count+instrument.Children.Count+direction.Children.Count; } }
-  public MortarScene(Viewport3D view,Canvas overlay,Border surface) {
+  public MortarScene(Viewport3D view,Canvas overlay,Border surface,Func<ModifierKeys> modifiers=null) {
+   var readModifiers=modifiers??(()=>Keyboard.Modifiers);
    viewport=view; labels=overlay; host=surface;
    camera.FieldOfView=39;camera.NearPlaneDistance=.1;camera.FarPlaneDistance=80;
    viewport.Camera=camera;
@@ -42,7 +43,7 @@ namespace WardogsFastCalc {
    host.LostMouseCapture+=delegate{dragging=false;};
    host.MouseMove+=delegate(object s,MouseEventArgs e){if(!dragging)return;Point p=e.GetPosition(host);Orbit((p.X-lastMouse.X)*.5,(p.Y-lastMouse.Y)*.3);lastMouse=p;};
    host.MouseWheel+=delegate(object s,MouseWheelEventArgs e){Zoom(e.Delta>0?-.5:.5);e.Handled=true;};
-   host.KeyDown+=delegate(object s,KeyEventArgs e){if(HandleKey(e.Key,Keyboard.Modifiers))e.Handled=true;};
+   host.KeyDown+=delegate(object s,KeyEventArgs e){if(HandleKey(e.Key,readModifiers()))e.Handled=true;};
    viewport.SizeChanged+=delegate{UpdateCamera();};
    Update(null);UpdateCamera();
   }

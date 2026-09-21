@@ -6,13 +6,13 @@ $files = @(
  'README.md','RESEARCH.md','SECURITY_AUDIT.md','THIRD-PARTY-NOTICES.txt',
  'build.ps1','package.ps1','.gitignore','.gitattributes',
  'scripts/audit_repo.py',
- 'src/App.cs','src/Core.cs','src/MortarScene.cs','src/MainWindow.xaml',
+ 'src/App.cs','src/Core.cs','src/MortarScene.cs','src/Desktop.cs','src/MainWindow.xaml',
  'src/app.manifest','src/l81.csv','src/AppIcon.ico','src/AppIcon.png','src/AppIcon.svg','src/build-icon.ps1',
  'research/UPSTREAM-LICENSE.txt','research/upstream-commit.txt','research/features.md',
  'research/results.js','research/coordinates.js','research/weapons.json',
  'research/bakurani.json','research/ozeti.json','research/zestafona.json',
  'tests/Tests.cs','tests/VALIDATION.md','tests/test-results.txt',
- 'tests/app-example.png','tests/app-minimum-size.png','tests/app-out-of-range.png','tests/app-top-view.png'
+ 'tests/app-example.png','tests/app-minimum-size.png','tests/app-out-of-range.png','tests/app-top-view.png','tests/app-saved-targets.png','tests/app-short-wide.png','tests/app-narrow-history.png'
 )
 $destination = Join-Path $PSScriptRoot 'WardogsFastCalc-Windows.zip'
 $stream = [IO.File]::Open($destination,[IO.FileMode]::Create)
