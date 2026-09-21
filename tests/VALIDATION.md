@@ -3,7 +3,7 @@
 Windows host, September 20, 2026.
 
 - Built with the installed .NET Framework compiler; no external dependencies downloaded.
-- 202 automated assertions pass in the compiled executable. Full output: `test-results.txt`.
+- 202 automated assertions pass in the compiled executable. Full output: [test-results.txt](test-results.txt); test source: [Tests.cs](Tests.cs).
 - Bug-pass regressions: exact coordinate-derived 132 m and 684 m endpoints remain in range despite floating-point error; genuinely out-of-range distances remain rejected. Saved distance values with surrounding spaces or only whitespace survive a session restart. Shift+plus zooms the scene, and deleting a selected history row retains focus and selection for repeated keyboard deletion. Each bug was reproduced by a failing check before its fix.
 - Calculation coverage: coordinate formats, decimal conventions, malformed/ambiguous input, all eight compass directions, published example, range endpoints, interpolation, manual overrides, coincident points, nonfinite values, and culture-independent output.
 - WPF coverage: live updates, invalidation of stale values, tab order, select-all focus, keyboard commands, saved setup recall, duplicates, range warnings, session persistence, history limits, and corrupt-file recovery.
@@ -15,3 +15,17 @@ Windows host, September 20, 2026.
 - Launched the actual Windows executable and visually confirmed Load example → 413 m / 250.9° WSW / approximately 569 MIL, Enter-to-save, and Ctrl+3 focus on the override field. UI Automation text was stale on this host; visual screenshots were used to verify those interactions.
 
 Limit: no live-match shot validation, physical monitor hot-plug, mixed-monitor DPI transition, or different-Windows-version test was performed. Monitor work-area edge cases above use synthetic rectangles; the existing system-DPI-aware manifest remains unchanged.
+
+## Visual evidence
+
+| State | Render |
+| --- | --- |
+| Default example and fixed aiming values | [app-example.png](app-example.png) |
+| Named targets and favorites | [app-saved-targets.png](app-saved-targets.png) |
+| Minimum window size | [app-minimum-size.png](app-minimum-size.png) |
+| Keyboard access to history in a narrow window | [app-narrow-history.png](app-narrow-history.png) |
+| Short, wide window | [app-short-wide.png](app-short-wide.png) |
+| Overhead scene | [app-top-view.png](app-top-view.png) |
+| Out-of-range target | [app-out-of-range.png](app-out-of-range.png) |
+
+These are application-rendered images of synthetic inputs, not captures of a personal desktop or live game session. The [maintenance guide](../docs/DEVELOPMENT.md#build-and-test) describes how to regenerate them.

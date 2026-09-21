@@ -19,17 +19,22 @@ Reviewed September 20, 2026. Scope: all tracked files and reachable Git objects;
 - The application has no network client, credential storage, dynamic code compilation, process launching, or game-memory integration. Clipboard access is write-only and explicit. XAML is loaded only from embedded, build-time resources.
 - The Windows manifest requests normal user privileges, without elevation or UIAccess. Dependencies are Windows/.NET Framework components; there are no downloaded application packages or update executables.
 - The released ZIP uses a reviewed file list and excludes `.git`, session XML, credentials, and temporary files. Its executable is byte-for-byte identical to the tested distribution executable.
+- Target names, favorites, current inputs, and window placement are stored only in the local session file. Session writes use a unique temporary filename followed by replacement or move; failures remain visible in the UI. These changes do not add automatic backups or cloud sync.
 
 ## Checks to repeat
 
 ```powershell
 python scripts/audit_repo.py --history
-.\build.ps1
-$test = Start-Process .\dist\WardogsFastCalc.exe -ArgumentList '--test tests\test-results.txt' -PassThru -Wait
+.\build.ps1 -OutputDirectory build-preview
+$test = Start-Process .\build-preview\WardogsFastCalc.exe -ArgumentList '--test tests\test-results.txt' -WindowStyle Hidden -PassThru -Wait
 if ($test.ExitCode -ne 0) { throw 'Tests failed' }
+# Close the running release normally before replacing its executable.
+Copy-Item .\build-preview\WardogsFastCalc.exe .\dist\WardogsFastCalc.exe -Force
 .\package.ps1
 python scripts/audit_repo.py
 ```
+
+For documentation-only changes, keep the tested executable and refresh the package. See the [maintenance guide](docs/DEVELOPMENT.md) for package verification and scanning staged files. These scanner commands require a Git checkout; the source ZIP intentionally omits `.git`.
 
 The scanner is a scoped heuristic, not a replacement for a secret-scanning service or a penetration test. Personal comparison values come from the environment and global Git identity on the machine where it runs. On another machine, it may not know the original publisher's identifiers. Review unexpected email findings rather than treating all third-party attribution as personal data to delete.
 

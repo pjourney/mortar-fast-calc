@@ -3,7 +3,7 @@ Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 # Only reviewed paths are packaged. Never recurse through local test/build folders.
 $files = @(
- 'README.md','RESEARCH.md','SECURITY_AUDIT.md','THIRD-PARTY-NOTICES.txt',
+ 'README.md','CHANGELOG.md','docs/DEVELOPMENT.md','RESEARCH.md','SECURITY_AUDIT.md','THIRD-PARTY-NOTICES.txt',
  'build.ps1','package.ps1','.gitignore','.gitattributes',
  'scripts/audit_repo.py',
  'src/App.cs','src/Core.cs','src/MortarScene.cs','src/Desktop.cs','src/MainWindow.xaml',
